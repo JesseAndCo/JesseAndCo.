@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>JesseAndCo Neighborhood Hub</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 15px;
+      margin: 15px auto;
+      width: 340px;
+      border-radius: 12px;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 6px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    #adminPanel {
+      display: none;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: rgba(255,255,255,0.1);
+      margin: 5px;
+      padding: 8px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>JesseAndCo Neighborhood Hub</h1>
+
+<!-- STATUS -->
+<div class="card">
+  <h2>📢 Status</h2>
+  <p id="status">Loading...</p>
+</div>
+
+<!-- EVENTS -->
+<div class="card">
+  <h2>📅 Events</h2>
+  <input id="eventText" placeholder="Add event">
+  <button onclick="addEvent()">Add</button>
+  <ul id="eventList"></ul>
+</div>
+
+<!-- LOGIN -->
+<div class="card">
+  <h2>🔐 Admin Login</h2>
+  <input id="code" placeholder="Enter code">
+  <button onclick="login()">Unlock</button>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="card" id="adminPanel">
+  <h2>Admin Panel</h2>
+
+  <input id="newStatus" placeholder="Update status">
+  <button onclick="updateStatus()">Update</button>
+
+  <br>
+
+  <button onclick="toggleCash()">Toggle Cash App</button>
+
+  <br><br>
+
+  <input id="cashInput" placeholder="$cashapp">
+  <button onclick="setCash()">Set Cash App</button>
+</div>
+
+<!-- CASH APP -->
+<div class="card" id="cashBox" style="display:none;">
+  <h2>💸 Cash App</h2>
+  <p id="cashText"></p>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+
+let status = localStorage.getItem("status") || "No updates yet";
+let cash = localStorage.getItem("cash") || "$not set";
+let cashVisible = localStorage.getItem("cashVisible") === "true";
+
+/* ---------------- LOAD ---------------- */
+
+document.getElementById("status").innerText = status;
+document.getElementById("cashText").innerText = cash;
+
+if (cashVisible) {
+  document.getElementById("cashBox").style.display = "block";
+}
+
+/* ---------------- ADMIN LOGIN ---------------- */
+
+function login() {
+  const code = document.getElementById("code").value;
+
+  if (code === "082712") {
+    document.getElementById("adminPanel").style.display = "block";
+    alert("Admin unlocked");
+  } else {
+    alert("Wrong code");
+  }
+}
+
+/* ---------------- STATUS ---------------- */
+
+function updateStatus() {
+  const newStatus = document.getElementById("newStatus").value;
+
+  localStorage.setItem("status", newStatus);
+  document.getElementById("status").innerText = newStatus;
+}
+
+/* ---------------- CASH APP ---------------- */
+
+function setCash() {
+  const val = document.getElementById("cashInput").value;
+
+  localStorage.setItem("cash", val);
+  document.getElementById("cashText").innerText = val;
+}
+
+function toggleCash() {
+  cashVisible = !cashVisible;
+  localStorage.setItem("cashVisible", cashVisible);
+
+  document.getElementById("cashBox").style.display =
+    cashVisible ? "block" : "none";
+}
+
+/* ---------------- EVENTS ---------------- */
+
+let events = JSON.parse(localStorage.getItem("events") || "[]");
+
+function renderEvents() {
+  const list = document.getElementById("eventList");
+  list.innerHTML = "";
+
+  events.forEach(e => {
+    const li = document.createElement("li");
+    li.innerText = e;
+    list.appendChild(li);
+  });
+}
+
+function addEvent() {
+  const text = document.getElementById("eventText").value;
+  if (!text) return;
+
+  events.push(text);
+  localStorage.setItem("events", JSON.stringify(events));
+
+  renderEvents();
+}
+
+renderEvents();
+</script>
+
+</body>
+</html>
