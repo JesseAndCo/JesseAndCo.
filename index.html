@@ -2,49 +2,51 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>JesseAndCo Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JesseAndCo</title>
 
 <style>
 body {
   margin: 0;
   font-family: Arial;
-  background: linear-gradient(135deg, #0f172a, #1e1b4b);
+  background: linear-gradient(135deg, #0f172a, #1f1147);
   color: white;
 }
 
 /* HEADER */
 header {
-  background: linear-gradient(90deg, #f43f5e, #3b82f6, #22c55e);
   padding: 16px;
   text-align: center;
   font-size: 22px;
   font-weight: bold;
+  background: linear-gradient(90deg, #f97316, #ec4899, #3b82f6);
 }
 
-/* TABS */
-.tab-bar {
+/* TAB BAR */
+.tabs {
   display: flex;
   background: #111827;
+  position: sticky;
+  top: 0;
 }
 
-.tab-bar button {
+.tabs button {
   flex: 1;
   padding: 14px;
   border: none;
-  background: transparent;
+  background: none;
   color: white;
-  cursor: pointer;
   font-weight: bold;
 }
 
-.tab-bar button:hover {
+.tabs button:hover {
   background: rgba(255,255,255,0.1);
 }
 
 /* SECTIONS */
-.section {
+.page {
   display: none;
-  padding: 20px;
+  padding: 15px;
 }
 
 .active {
@@ -54,21 +56,21 @@ header {
 /* CARDS */
 .card {
   background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-  padding: 15px;
-  border-radius: 15px;
-  margin-bottom: 15px;
   border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 15px;
+  margin-bottom: 15px;
+  backdrop-filter: blur(10px);
 }
 
 /* BUTTONS */
 button.action {
   padding: 12px;
-  border: none;
   border-radius: 12px;
-  cursor: pointer;
-  margin: 8px 5px;
+  border: none;
+  margin-top: 10px;
   font-weight: bold;
+  width: 100%;
 }
 
 .green { background: #22c55e; color: black; }
@@ -83,103 +85,123 @@ input, textarea {
   margin-top: 10px;
   border-radius: 10px;
   border: none;
+  box-sizing: border-box;
+}
+
+/* ADMIN POPUP */
+#adminBox {
+  display: none;
 }
 </style>
 </head>
 
 <body>
 
-<header>🌈 JesseAndCo Neighborhood Hub</header>
+<header>🏡 JesseAndCo Neighborhood Hub</header>
 
-<div class="tab-bar">
-  <button onclick="openTab('home')">Home</button>
-  <button onclick="openTab('calendar')">Calendar</button>
-  <button onclick="openTab('info')">Info</button>
-  <button onclick="openTab('admin')">Admin</button>
+<div class="tabs">
+  <button onclick="openPage('home')">Home</button>
+  <button onclick="openPage('calendar')">Calendar</button>
+  <button onclick="openPage('updates')">Updates</button>
+  <button onclick="openPage('admin')">Admin</button>
 </div>
 
 <!-- HOME -->
-<div id="home" class="section active">
+<div id="home" class="page active">
+
   <div class="card">
     <h2>Status</h2>
     <p id="statusText">Not coming through</p>
 
-    <button class="action green" onclick="coming()">Coming Through</button>
-    <button class="action red" onclick="notComing()">Not Coming</button>
+    <button class="action green" onclick="toggleStatus()">Toggle Coming / Not Coming</button>
   </div>
+
 </div>
 
 <!-- CALENDAR -->
-<div id="calendar" class="section">
+<div id="calendar" class="page">
+
   <div class="card">
-    <h2>📅 Calendar</h2>
-    <iframe 
+    <h2>📅 Google Calendar</h2>
+
+    <iframe
       src="https://calendar.google.com/calendar/embed?src=YOUR_CALENDAR_ID&ctz=America%2FNew_York"
-      style="width:100%; height:400px; border:0; border-radius:10px;">
+      style="width:100%; height:400px; border:0; border-radius:12px;">
     </iframe>
+
   </div>
+
 </div>
 
-<!-- INFO -->
-<div id="info" class="section">
+<!-- UPDATES -->
+<div id="updates" class="page">
+
   <div class="card">
-    <h2>📝 Important Info</h2>
-    <p id="infoText">No updates yet.</p>
+    <h2>📝 Neighborhood Updates</h2>
+    <p id="updateText">No updates yet.</p>
   </div>
+
 </div>
 
 <!-- ADMIN -->
-<div id="admin" class="section">
-  <div class="card">
-    <h2>🔐 Admin Panel</h2>
+<div id="admin" class="page">
 
-    <input id="code" placeholder="Enter admin code">
+  <div class="card">
+    <h2>🔐 Admin Login</h2>
+
+    <input id="code" placeholder="Enter code">
     <button class="action purple" onclick="unlock()">Unlock</button>
 
-    <div id="adminTools" style="display:none;">
-      <h3>Status Control</h3>
-      <button class="action green" onclick="coming()">Set Coming</button>
-      <button class="action red" onclick="notComing()">Set Not Coming</button>
+    <div id="adminBox">
 
-      <h3>Info Update</h3>
-      <textarea id="newInfo" placeholder="Update neighborhood info"></textarea>
-      <button class="action blue" onclick="updateInfo()">Save Info</button>
+      <h3>Controls</h3>
+
+      <button class="action green" onclick="setComing()">Set Coming</button>
+      <button class="action red" onclick="setNotComing()">Set Not Coming</button>
+
+      <h3>Update Message</h3>
+      <textarea id="newUpdate" placeholder="Write update..."></textarea>
+      <button class="action blue" onclick="saveUpdate()">Save Update</button>
+
+      <button class="action" onclick="closeAdmin()" style="background:#334155;color:white;">
+        Close Admin
+      </button>
+
     </div>
+
   </div>
+
 </div>
 
 <script>
 
-/* TABS */
-function openTab(tab) {
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-  document.getElementById(tab).classList.add("active");
+/* PAGES */
+function openPage(page) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(page).classList.add("active");
 }
 
 /* STATUS */
 let status = localStorage.getItem("status") || "Not coming through";
 document.getElementById("statusText").innerText = status;
 
-function coming() {
-  status = "Coming Through – Be Ready";
+function toggleStatus() {
+  status = (status === "Not coming through")
+    ? "Coming Through – Be Ready"
+    : "Not coming through";
+
   localStorage.setItem("status", status);
   document.getElementById("statusText").innerText = status;
 }
 
-function notComing() {
-  status = "Not coming through";
-  localStorage.setItem("status", status);
-  document.getElementById("statusText").innerText = status;
-}
+/* UPDATES */
+let update = localStorage.getItem("update") || "No updates yet.";
+document.getElementById("updateText").innerText = update;
 
-/* INFO */
-let info = localStorage.getItem("info") || "No updates yet.";
-document.getElementById("infoText").innerText = info;
-
-function updateInfo() {
-  const newInfo = document.getElementById("newInfo").value;
-  localStorage.setItem("info", newInfo);
-  document.getElementById("infoText").innerText = newInfo;
+function saveUpdate() {
+  const text = document.getElementById("newUpdate").value;
+  localStorage.setItem("update", text);
+  document.getElementById("updateText").innerText = text;
 }
 
 /* ADMIN */
@@ -187,11 +209,28 @@ function unlock() {
   const code = document.getElementById("code").value;
 
   if (code === "082712") {
-    document.getElementById("adminTools").style.display = "block";
+    document.getElementById("adminBox").style.display = "block";
     alert("Admin unlocked");
   } else {
     alert("Wrong code");
   }
+}
+
+function closeAdmin() {
+  document.getElementById("adminBox").style.display = "none";
+}
+
+/* STATUS CONTROL FROM ADMIN */
+function setComing() {
+  status = "Coming Through – Be Ready";
+  localStorage.setItem("status", status);
+  document.getElementById("statusText").innerText = status;
+}
+
+function setNotComing() {
+  status = "Not coming through";
+  localStorage.setItem("status", status);
+  document.getElementById("statusText").innerText = status;
 }
 
 </script>
